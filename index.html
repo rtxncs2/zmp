@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,7 +33,6 @@
             letter-spacing: 1px;
         }
 
-        /* Playlist Styling */
         .playlist {
             max-height: 180px;
             overflow-y: auto;
@@ -42,13 +42,8 @@
             border: 1px solid #21262d;
         }
 
-        .playlist::-webkit-scrollbar {
-            width: 5px;
-        }
-        .playlist::-webkit-scrollbar-thumb {
-            background: #444;
-            border-radius: 10px;
-        }
+        .playlist::-webkit-scrollbar { width: 5px; }
+        .playlist::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
 
         .song {
             padding: 14px 18px;
@@ -59,16 +54,8 @@
             font-size: 14px;
         }
 
-        .song:hover {
-            background: #1c2128;
-            color: white;
-        }
-
-        .song.active {
-            background: #23863622;
-            color: #58a6ff;
-            border-left: 4px solid #58a6ff;
-        }
+        .song:hover { background: #1c2128; color: white; }
+        .song.active { background: #23863622; color: #58a6ff; border-left: 4px solid #58a6ff; }
 
         .current-song {
             text-align: center;
@@ -79,12 +66,7 @@
             font-size: 18px;
         }
 
-        /* Seek Bar Customization */
-        input[type="range"] {
-            width: 100%;
-            cursor: pointer;
-            accent-color: #58a6ff;
-        }
+        input[type="range"] { width: 100%; cursor: pointer; accent-color: #58a6ff; }
 
         .time-display {
             display: flex;
@@ -95,7 +77,6 @@
             margin-bottom: 25px;
         }
 
-        /* BUTTON FIXES START HERE */
         .controls {
             display: flex;
             justify-content: center;
@@ -104,21 +85,23 @@
         }
 
         button {
-            width: 65px;
-            height: 65px;
+            width: 55px;
+            height: 55px;
             border-radius: 50%;
             border: none;
             background: #21262d;
-            color: white;
+            fill: white; /* Controls SVG color */
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.2s ease;
-            
-            /* The Fix: Target the font size of the Emoji/Character */
-            font-size: 24px; 
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        button svg {
+            width: 24px;
+            height: 24px;
         }
 
         button:hover {
@@ -127,44 +110,51 @@
             box-shadow: 0 6px 15px rgba(0,0,0,0.4);
         }
 
-        button:active {
-            transform: translateY(0);
-        }
-
         #playBtn {
-            width: 80px;
-            height: 80px;
+            width: 70px;
+            height: 70px;
             background: #58a6ff;
-            color: white;
-            font-size: 32px; /* Bigger icon for the main button */
         }
 
-        #playBtn:hover {
-            background: #79bcff;
+        #playBtn svg {
+            width: 30px;
+            height: 30px;
+            margin-left: 2px; /* Optical alignment for play triangle */
         }
+
+        #playBtn.is-pausing svg {
+            margin-left: 0; /* Center the pause bars */
+        }
+
+        #playBtn:hover { background: #79bcff; }
     </style>
 </head>
-
 <body>
 
 <div class="player">
     <h2>Music Player</h2>
-
     <div class="playlist" id="playlist"></div>
-
     <div class="current-song" id="currentSong">Select a song</div>
-
     <input type="range" id="seekBar" value="0" min="0" max="100">
-
     <div class="time-display">
         <span id="currentTime">0:00</span>
         <span id="duration">0:00</span>
     </div>
 
     <div class="controls">
-        <button onclick="prevSong()">⏮</button>
-        <button id="playBtn" onclick="togglePlay()">▶</button>
-        <button onclick="nextSong()">⏭</button>
+        <button onclick="prevSong()" title="Previous">
+            <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+        </button>
+        
+        <button id="playBtn" onclick="togglePlay()" title="Play">
+            <svg id="playIcon" viewBox="0 0 24 24">
+                <path id="playPath" d="M8 5v14l11-7z"/>
+            </svg>
+        </button>
+
+        <button onclick="nextSong()" title="Next">
+            <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6zM16 6h2v12h-2z"/></svg>
+        </button>
     </div>
 
     <audio id="audio"></audio>
@@ -172,31 +162,26 @@
 
 <script>
     const songs = [
-        {
-            title: "Kunjikkavil Meghame",
-            url: "https://raw.githubusercontent.com/rtxncs2/zmp/d7dc121c0cc426dfceedee7e8d7672f1665aafa7/Kunjikkavil%20Meghame.mp3"
-        },
-        {
-            title: "Puthumazha",
-            url: "https://raw.githubusercontent.com/rtxncs2/zmp/d7dc121c0cc426dfceedee7e8d7672f1665aafa7/Puthu%20Mazha.mp3"
-        },
-        {
-            title: "Rahasyamay",
-            url: "https://raw.githubusercontent.com/rtxncs2/zmp/d7dc121c0cc426dfceedee7e8d7672f1665aafa7/Rahasyamayi.mp3"
-        }
+        { title: "Kunjikkavil Meghame", url: "https://raw.githubusercontent.com/rtxncs2/zmp/d7dc121c0cc426dfceedee7e8d7672f1665aafa7/Kunjikkavil%20Meghame.mp3" },
+        { title: "Puthumazha", url: "https://raw.githubusercontent.com/rtxncs2/zmp/d7dc121c0cc426dfceedee7e8d7672f1665aafa7/Puthu%20Mazha.mp3" },
+        { title: "Rahasyamay", url: "https://raw.githubusercontent.com/rtxncs2/zmp/d7dc121c0cc426dfceedee7e8d7672f1665aafa7/Rahasyamayi.mp3" }
     ];
 
     const audio = document.getElementById("audio");
     const playlist = document.getElementById("playlist");
     const seekBar = document.getElementById("seekBar");
     const playBtn = document.getElementById("playBtn");
+    const playPath = document.getElementById("playPath");
     const currentSongEl = document.getElementById("currentSong");
     const currentTimeEl = document.getElementById("currentTime");
     const durationEl = document.getElementById("duration");
 
     let currentIndex = 0;
 
-    /* Build playlist */
+    // SVG Path Constants
+    const PLAY_PATH = "M8 5v14l11-7z";
+    const PAUSE_PATH = "M6 19h4V5H6v14zm8-14v14h4V5h-4z";
+
     songs.forEach((song, i) => {
         const div = document.createElement("div");
         div.className = "song";
@@ -209,11 +194,9 @@
         currentIndex = index;
         audio.src = songs[index].url;
         currentSongEl.textContent = songs[index].title;
-
         document.querySelectorAll(".song").forEach((s, i) => {
             s.classList.toggle("active", i === index);
         });
-
         if (autoPlay) audio.play();
     }
 
@@ -221,33 +204,24 @@
         if (!audio.src) {
             loadSong(0, true);
         } else {
-            if (audio.paused) {
-                audio.play();
-            } else {
-                audio.pause();
-            }
+            audio.paused ? audio.play() : audio.pause();
         }
     }
 
-    function prevSong() {
-        loadSong((currentIndex - 1 + songs.length) % songs.length, true);
-    }
+    function prevSong() { loadSong((currentIndex - 1 + songs.length) % songs.length, true); }
+    function nextSong() { loadSong((currentIndex + 1) % songs.length, true); }
 
-    function nextSong() {
-        loadSong((currentIndex + 1) % songs.length, true);
-    }
-
-    /* Audio events */
     audio.addEventListener("play", () => {
-        playBtn.textContent = "⏸";
+        playPath.setAttribute("d", PAUSE_PATH);
+        playBtn.classList.add("is-pausing");
     });
 
     audio.addEventListener("pause", () => {
-        playBtn.textContent = "▶";
+        playPath.setAttribute("d", PLAY_PATH);
+        playBtn.classList.remove("is-pausing");
     });
 
     audio.addEventListener("ended", nextSong);
-
     audio.addEventListener("timeupdate", () => {
         if (!audio.duration) return;
         seekBar.value = (audio.currentTime / audio.duration) * 100;
@@ -259,9 +233,7 @@
     });
 
     seekBar.addEventListener("input", () => {
-        if (audio.duration) {
-            audio.currentTime = (seekBar.value / 100) * audio.duration;
-        }
+        if (audio.duration) audio.currentTime = (seekBar.value / 100) * audio.duration;
     });
 
     function formatTime(sec) {
@@ -270,9 +242,7 @@
         return `${m}:${s.toString().padStart(2, "0")}`;
     }
 
-    /* Load first song initially but don't autoplay */
     loadSong(0, false);
 </script>
-
 </body>
 </html>
